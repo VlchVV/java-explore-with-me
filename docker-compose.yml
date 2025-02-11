@@ -20,9 +20,9 @@ services:
       - POSTGRES_USER=dbuser
       - POSTGRES_PASSWORD=12345
 
-  ewm-service:
-    ports:
-      - "8080:8080"
-
-  ewm-db:
-    image: postgres:16.1
+#  ewm-service:
+#    ports:
+#      - "8080:8080"
+#
+#  ewm-db:
+#    image: postgres:16.1
