@@ -7,6 +7,7 @@ import jakarta.validation.constraints.Past;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import ru.practicum.ewm.stats.util.Constants;
 
 import java.time.LocalDateTime;
 
@@ -27,6 +28,6 @@ public class EndpointHitDto {
 
     @NotNull
     @Past
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = Constants.DATE_TIME_FORMAT)
     private LocalDateTime timestamp;
 }

@@ -30,8 +30,8 @@ public class StatsClient {
         ResponseEntity<Object> response;
         try {
             response = restTemplate.postForEntity(serverUrl + "/hit", hit, Object.class);
-        } catch (HttpStatusCodeException e) {
-            return ResponseEntity.status(e.getStatusCode()).body(e.getResponseBodyAsByteArray());
+        } catch (HttpStatusCodeException exception) {
+            return ResponseEntity.status(exception.getStatusCode()).body(exception.getResponseBodyAsByteArray());
         }
 
         ResponseEntity.BodyBuilder responseBuilder = ResponseEntity.status(response.getStatusCode());
@@ -45,7 +45,7 @@ public class StatsClient {
 
     public ResponseEntity<Object> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique) {
 
-        HashMap<String, Object> params = new HashMap<>(Map.of("start", start,
+        Map<String, Object> params = new HashMap<>(Map.of("start", start,
                 "end", end,
                 "uris", uris,
                 "unique", unique));
