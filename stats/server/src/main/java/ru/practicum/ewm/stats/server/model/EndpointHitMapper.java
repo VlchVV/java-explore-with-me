@@ -7,7 +7,15 @@ import ru.practicum.ewm.stats.dto.EndpointHitDto;
 public class EndpointHitMapper {
     public EndpointHit toHit(EndpointHitDto hit) {
         return new EndpointHit(
-                hit.getId(),
+                hit.getApp(),
+                hit.getUri(),
+                hit.getIp(),
+                hit.getTimestamp()
+        );
+    }
+
+    public EndpointHitDto toEndpointHitDto(EndpointHit hit) {
+        return new EndpointHitDto(
                 hit.getApp(),
                 hit.getUri(),
                 hit.getIp(),
