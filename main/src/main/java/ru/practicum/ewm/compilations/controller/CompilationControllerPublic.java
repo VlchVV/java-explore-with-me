@@ -8,6 +8,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.compilations.CompilationService;
 import ru.practicum.ewm.compilations.dto.CompilationDto;
+import ru.practicum.ewm.stats.util.Constants;
 
 import java.util.List;
 
@@ -21,8 +22,8 @@ public class CompilationControllerPublic {
 
     @GetMapping
     public List<CompilationDto> getCompilations(@RequestParam(required = false) Boolean pinned,
-                                                @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
-                                                @RequestParam(defaultValue = "10") @Positive Integer size) {
+                                                @RequestParam(defaultValue = Constants.DEFAULT_PAGE_FROM) @PositiveOrZero Integer from,
+                                                @RequestParam(defaultValue = Constants.DEFAULT_PAGE_SIZE) @Positive Integer size) {
         log.info("GET /compilations");
         return compilationService.getCompilations(pinned, from, size);
     }

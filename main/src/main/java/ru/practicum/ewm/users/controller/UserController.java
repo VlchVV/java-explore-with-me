@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.ewm.stats.util.Constants;
 import ru.practicum.ewm.users.UserService;
 import ru.practicum.ewm.users.dto.UserDto;
 import ru.practicum.ewm.users.dto.UserNewDto;
@@ -31,8 +32,8 @@ public class UserController {
 
     @GetMapping
     public List<UserDto> getUsers(@RequestParam(value = "ids", required = false) List<Long> ids,
-                                  @RequestParam(value = "from", defaultValue = "0") @PositiveOrZero Integer from,
-                                  @RequestParam(value = "size", defaultValue = "10") @Positive Integer size) {
+                                  @RequestParam(value = Constants.REQ_PARAM_FROM, defaultValue = Constants.DEFAULT_PAGE_FROM) @PositiveOrZero Integer from,
+                                  @RequestParam(value = Constants.REQ_PARAM_SIZE, defaultValue = Constants.DEFAULT_PAGE_SIZE) @Positive Integer size) {
         log.info("GET /admin/users / getUsers");
         return userService.getUsers(ids, from, size);
     }

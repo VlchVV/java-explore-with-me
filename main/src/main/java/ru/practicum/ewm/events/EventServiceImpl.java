@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Primary;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
@@ -53,6 +54,7 @@ import static ru.practicum.ewm.requests.enums.RequestStatus.CONFIRMED;
 
 @Slf4j
 @Service
+@Primary
 @RequiredArgsConstructor
 @Transactional
 @FieldDefaults(level = AccessLevel.PROTECTED)

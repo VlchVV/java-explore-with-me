@@ -8,6 +8,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.categories.CategoryService;
 import ru.practicum.ewm.categories.dto.CategoryDto;
+import ru.practicum.ewm.stats.util.Constants;
 
 import java.util.List;
 
@@ -20,8 +21,8 @@ public class CategoryControllerPublic {
     private final CategoryService categoryService;
 
     @GetMapping
-    public List<CategoryDto> getCategories(@RequestParam(value = "from", defaultValue = "0") @PositiveOrZero Integer from,
-                                           @RequestParam(value = "size", defaultValue = "10") @Positive Integer size) {
+    public List<CategoryDto> getCategories(@RequestParam(value = Constants.REQ_PARAM_FROM, defaultValue = Constants.DEFAULT_PAGE_FROM) @PositiveOrZero Integer from,
+                                           @RequestParam(value = Constants.REQ_PARAM_SIZE, defaultValue = Constants.DEFAULT_PAGE_SIZE) @Positive Integer size) {
         log.info("GET /categories / getCategories");
         return categoryService.getAllCategories(from, size);
     }

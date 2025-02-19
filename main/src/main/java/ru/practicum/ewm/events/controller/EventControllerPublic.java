@@ -37,9 +37,9 @@ public class EventControllerPublic {
                                                   LocalDateTime rangeEnd,
                                                   @RequestParam(defaultValue = "false") Boolean onlyAvailable,
                                                   @RequestParam(defaultValue = "EVENT_DATE") String sort,
-                                                  @RequestParam(value = "from", defaultValue = "0") @PositiveOrZero
+                                                  @RequestParam(value = Constants.REQ_PARAM_FROM, defaultValue = Constants.DEFAULT_PAGE_FROM) @PositiveOrZero
                                                   Integer from,
-                                                  @RequestParam(value = "size", defaultValue = "10") @Positive
+                                                  @RequestParam(value = Constants.REQ_PARAM_SIZE, defaultValue = Constants.DEFAULT_PAGE_SIZE) @Positive
                                                   Integer size,
                                                   HttpServletRequest request) {
         log.info("GET / /events / getEvents");

@@ -17,6 +17,7 @@ import ru.practicum.ewm.requests.RequestService;
 import ru.practicum.ewm.requests.dto.EventRequestStatusUpdateRequest;
 import ru.practicum.ewm.requests.dto.EventRequestStatusUpdateResult;
 import ru.practicum.ewm.requests.dto.RequestDto;
+import ru.practicum.ewm.stats.util.Constants;
 
 import java.util.List;
 
@@ -54,8 +55,8 @@ public class EventControllerPrivate {
 
     @GetMapping
     List<EventShortDto> getEventsByOwner(@PathVariable Long userId,
-                                         @RequestParam(value = "from", defaultValue = "0") @PositiveOrZero Integer from,
-                                         @RequestParam(value = "size", defaultValue = "10") @Positive Integer size) {
+                                         @RequestParam(value = Constants.REQ_PARAM_FROM, defaultValue = Constants.DEFAULT_PAGE_FROM) @PositiveOrZero Integer from,
+                                         @RequestParam(value = Constants.REQ_PARAM_SIZE, defaultValue = Constants.DEFAULT_PAGE_SIZE) @Positive Integer size) {
         log.info("GET / /users/{userId}/events / getEventsByOwner");
         return eventService.getEventsByOwner(userId, from, size);
     }
