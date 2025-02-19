@@ -1,15 +1,18 @@
 package ru.practicum.ewm.requests.dto;
 
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.FieldDefaults;
 
 import java.util.List;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class EventRequestStatusUpdateResult {
-    private List<RequestDto> confirmedRequests;
-    private List<RequestDto> rejectedRequests;
+    List<RequestDto> confirmedRequests;
+    List<RequestDto> rejectedRequests;
 }

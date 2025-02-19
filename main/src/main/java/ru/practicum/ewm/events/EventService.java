@@ -11,15 +11,9 @@ public interface EventService {
 
     EventFullDto updateEventByOwner(Long userId, Long eventId, EventUpdateUserDto updateEvent);
 
-    EventFullDto updateEventByAdmin(Long eventId, EventUpdateAdminDto updateEvent);
-
     List<EventShortDto> getEventsByOwner(Long userId, Integer from, Integer size);
 
     EventFullDto getEventByOwner(Long userId, Long eventId);
-
-    List<EventFullDtoWithViews> getEventsByAdminParams(List<Long> users, List<String> states, List<Long> categories,
-                                                       LocalDateTime rangeStart, LocalDateTime rangeEnd,
-                                                       Integer from, Integer size);
 
     List<EventShortDtoWithViews> getEvents(String text, List<Long> categories, Boolean paid, LocalDateTime rangeStart,
                                            LocalDateTime rangeEnd, Boolean onlyAvailable, String sort, Integer from,

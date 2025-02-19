@@ -16,10 +16,10 @@ import java.time.LocalDateTime;
 @Slf4j
 @RestControllerAdvice
 public class ErrorHandler {
-    private static String stackTraceToString(Throwable e) {
+    private static String stackTraceToString(Throwable throwable) {
         Writer buffer = new StringWriter();
-        PrintWriter pw = new PrintWriter(buffer);
-        e.printStackTrace(pw);
+        PrintWriter printWriter = new PrintWriter(buffer);
+        throwable.printStackTrace(printWriter);
         return buffer.toString();
     }
 
@@ -37,10 +37,10 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ApiError handleInternalServerError(final Exception e) {
-        log.error(stackTraceToString(e));
+    public ApiError handleInternalServerError(final Exception exception) {
+        log.error(stackTraceToString(exception));
         return ApiError.builder()
-                .message(e.getMessage())
+                .message(exception.getMessage())
                 .status("INTERNAL_SERVER_ERROR")
                 .timestamp(LocalDateTime.now())
                 .build();

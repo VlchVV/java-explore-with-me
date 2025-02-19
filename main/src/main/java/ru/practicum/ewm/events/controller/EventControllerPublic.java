@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.events.EventService;
 import ru.practicum.ewm.events.dto.EventFullDtoWithViews;
 import ru.practicum.ewm.events.dto.EventShortDtoWithViews;
+import ru.practicum.ewm.stats.util.Constants;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -29,10 +30,10 @@ public class EventControllerPublic {
                                                   @RequestParam(required = false) List<Long> categories,
                                                   @RequestParam(required = false) Boolean paid,
                                                   @RequestParam(required = false)
-                                                  @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+                                                      @DateTimeFormat(pattern = Constants.DATE_TIME_FORMAT)
                                                   LocalDateTime rangeStart,
                                                   @RequestParam(required = false)
-                                                  @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+                                                      @DateTimeFormat(pattern = Constants.DATE_TIME_FORMAT)
                                                   LocalDateTime rangeEnd,
                                                   @RequestParam(defaultValue = "false") Boolean onlyAvailable,
                                                   @RequestParam(defaultValue = "EVENT_DATE") String sort,

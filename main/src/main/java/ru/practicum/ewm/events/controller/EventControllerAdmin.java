@@ -8,7 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.ewm.events.EventService;
+import ru.practicum.ewm.events.EventServiceAdmin;
 import ru.practicum.ewm.events.dto.EventFullDto;
 import ru.practicum.ewm.events.dto.EventFullDtoWithViews;
 import ru.practicum.ewm.events.dto.EventUpdateAdminDto;
@@ -23,14 +23,14 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/admin/events")
 public class EventControllerAdmin {
-    private final EventService eventService;
+    private final EventServiceAdmin eventServiceAdmin;
 
     @PatchMapping("/{eventId}")
     public EventFullDto updateEventByAdmin(
             @PathVariable Long eventId,
             @RequestBody @Valid EventUpdateAdminDto eventUpdateAdminDto) {
         log.info("PATCH / /admin/events/{eventId} / updateEventByAdmin");
-        return eventService.updateEventByAdmin(eventId, eventUpdateAdminDto);
+        return eventServiceAdmin.updateEventByAdmin(eventId, eventUpdateAdminDto);
     }
 
     @GetMapping
@@ -43,6 +43,6 @@ public class EventControllerAdmin {
             @RequestParam(value = "from", defaultValue = "0") @PositiveOrZero Integer from,
             @RequestParam(value = "size", defaultValue = "10") @Positive Integer size) {
         log.info("GET / /admin/events / getEventsByAdminParams");
-        return eventService.getEventsByAdminParams(users, states, categories, rangeStart, rangeEnd, from, size);
+        return eventServiceAdmin.getEventsByAdminParams(users, states, categories, rangeStart, rangeEnd, from, size);
     }
 }

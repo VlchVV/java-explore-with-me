@@ -1,8 +1,10 @@
 package ru.practicum.ewm.requests.dto;
 
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import ru.practicum.ewm.requests.enums.RequestStatus;
 
 import java.util.List;
@@ -10,7 +12,8 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class EventRequestStatusUpdateRequest {
-    private List<Long> requestIds;
-    private RequestStatus status;
+    List<Long> requestIds;
+    RequestStatus status;
 }

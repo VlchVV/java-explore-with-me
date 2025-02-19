@@ -1,14 +1,17 @@
 package ru.practicum.ewm.requests.dto;
 
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.FieldDefaults;
 
 @Getter
 @Setter
 @AllArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class ConfirmedRequests {
-    private long count;
-    private Long event;
+    long count;
+    Long event;
 
 }

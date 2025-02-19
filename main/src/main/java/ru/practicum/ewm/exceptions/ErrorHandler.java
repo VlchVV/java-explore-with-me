@@ -79,10 +79,10 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ApiError handleInternalServerError(final Exception e) {
-        log.error(stackTraceToString(e));
+    public ApiError handleInternalServerError(final Exception exception) {
+        log.error(stackTraceToString(exception));
         return ApiError.builder()
-                .message(e.getMessage())
+                .message(exception.getMessage())
                 .status("INTERNAL_SERVER_ERROR")
                 .timestamp(LocalDateTime.now())
                 .build();

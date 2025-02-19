@@ -88,4 +88,32 @@ public class EventMapper {
                 .views(views)
                 .build();
     }
+
+    public EventUpdateDto eventUpdateAdminToUpdateEvent(EventUpdateAdminDto event) {
+        return EventUpdateDto.builder()
+                .annotation(event.getAnnotation())
+                .category(event.getCategory())
+                .description(event.getDescription())
+                .eventDate(event.getEventDate())
+                .location(event.getLocation())
+                .paid(event.getPaid())
+                .participantLimit(event.getParticipantLimit())
+                .requestModeration(event.getRequestModeration())
+                .title(event.getTitle())
+                .build();
+    }
+
+    public EventUpdateDto eventUpdateUserToUpdateEvent(EventUpdateUserDto event) {
+        return EventUpdateDto.builder()
+                .annotation(event.getAnnotation())
+                .category(event.getCategory())
+                .description(event.getDescription())
+                .eventDate(event.getEventDate())
+                .location(event.getLocation())
+                .paid(event.getPaid())
+                .participantLimit(event.getParticipantLimit())
+                .requestModeration(event.getRequestModeration())
+                .title(event.getTitle())
+                .build();
+    }
 }

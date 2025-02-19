@@ -110,16 +110,7 @@ public class CompilationServiceImpl implements CompilationService {
     @Transactional(readOnly = true)
     public CompilationDto getCompilationById(Long compilationId) {
         Compilation compilation = getCompilation(compilationId);
-        CompilationDto compilationDto = CompilationMapper.toCompilationDto(compilation);
-        if (compilation.getEvents() != null) {
-            List<Long> ids = compilation.getEvents().stream().map(Event::getId).collect(Collectors.toList());
-            Map<Long, Long> confirmedRequests = requestRepository.findAllByEventIdInAndStatus(ids, CONFIRMED)
-                    .stream()
-                    .collect(Collectors.toMap(ConfirmedRequests::getEvent, ConfirmedRequests::getCount));
-            compilationDto.setEvents(compilation.getEvents().stream()
-                    .map(event -> EventMapper.toEventShortDto(event, confirmedRequests.get(event.getId())))
-                    .collect(Collectors.toList()));
-        }
+        CompilationDto compilationDto = buildCompilationDto(compilation);
         log.info("getCompilationById: {}", compilationDto);
         return compilationDto;
     }

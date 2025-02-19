@@ -1,6 +1,5 @@
 package ru.practicum.ewm.events;
 
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -21,7 +20,7 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     @Query("SELECT e FROM Event e WHERE e.initiator.id IN :initiatorIds")
     List<Event> findAllByInitiatorIdIn(List<Long> initiatorIds);
 
-    Page<Event> findAll(Specification<Event> specification, Pageable pageable);
+    List<Event> findAll(Specification<Event> specification, Pageable pageable);
 
     Set<Event> findAllByIdIn(List<Long> events);
 }
