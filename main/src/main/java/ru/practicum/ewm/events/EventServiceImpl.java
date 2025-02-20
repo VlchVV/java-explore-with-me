@@ -1,7 +1,5 @@
 package ru.practicum.ewm.events;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ValidationException;
 import lombok.AccessLevel;
@@ -13,7 +11,6 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.categories.Category;
@@ -30,7 +27,6 @@ import ru.practicum.ewm.locations.LocationMapper;
 import ru.practicum.ewm.locations.LocationService;
 import ru.practicum.ewm.requests.RequestRepository;
 import ru.practicum.ewm.requests.dto.ConfirmedRequests;
-import ru.practicum.ewm.stats.client.StatsClient;
 import ru.practicum.ewm.stats.dto.EndpointHitDto;
 import ru.practicum.ewm.stats.dto.ViewStats;
 import ru.practicum.ewm.users.User;
@@ -63,7 +59,7 @@ public class EventServiceImpl implements EventService {
     final CategoryServiceImpl categoryService;
     final LocationService locationService;
     final RequestRepository requestRepository;
-    final StatsClient statsClient;
+    final EventStatsService eventStatsService;
     @Value("${app}")
     String app;
 
@@ -152,23 +148,13 @@ public class EventServiceImpl implements EventService {
                 throw new ValidationException("Unknown sort: " + sort);
         }
         List<Event> events = eventRepository.findAll(specification, pageRequest);
-        List<EventShortDtoWithViews> result = new ArrayList<>();
-        List<String> uris = events.stream()
-                .map(event -> String.format("/events/%s", event.getId()))
-                .collect(Collectors.toList());
-        LocalDateTime start = events.stream()
-                .map(Event::getCreatedOn)
-                .min(LocalDateTime::compareTo)
-                .orElseThrow(() -> new NotFoundException("Start was not found"));
-        ResponseEntity<Object> response = statsClient.getStats(start, LocalDateTime.now(), uris, true);
         List<Long> ids = events.stream().map(Event::getId).collect(Collectors.toList());
-        Map<Long, Long> confirmedRequests = requestRepository.findAllByEventIdInAndStatus(ids, CONFIRMED)
-                .stream()
+        Map<Long, Long> confirmedRequests = requestRepository.findAllByEventIdInAndStatus(ids, CONFIRMED).stream()
                 .collect(Collectors.toMap(ConfirmedRequests::getEvent, ConfirmedRequests::getCount));
+
+        List<ViewStats> statsDto = eventStatsService.getViewStatsByEvents(events);
+        List<EventShortDtoWithViews> result = new ArrayList<>();
         for (Event event : events) {
-            ObjectMapper mapper = new ObjectMapper();
-            List<ViewStats> statsDto = mapper.convertValue(response.getBody(), new TypeReference<>() {
-            });
             if (!statsDto.isEmpty()) {
                 result.add(EventMapper.toEventShortDtoWithViews(event, statsDto.get(0).getHits(),
                         confirmedRequests.getOrDefault(event.getId(), 0L)));
@@ -177,9 +163,9 @@ public class EventServiceImpl implements EventService {
                         confirmedRequests.getOrDefault(event.getId(), 0L)));
             }
         }
-        EndpointHitDto hit = new EndpointHitDto(app, request.getRequestURI(), request.getRemoteAddr(),
-                LocalDateTime.now());
-        statsClient.saveHit(hit);
+
+        eventStatsService.saveHit(new EndpointHitDto(app, request.getRequestURI(), request.getRemoteAddr(),
+                LocalDateTime.now()));
 
         log.info("get Events");
         return result;
@@ -192,11 +178,7 @@ public class EventServiceImpl implements EventService {
         if (event.getState() != PUBLISHED) {
             throw new NotFoundException("Event must be published.");
         }
-        ResponseEntity<Object> response = statsClient.getStats(event.getCreatedOn(), LocalDateTime.now(),
-                List.of(request.getRequestURI()), true);
-        ObjectMapper mapper = new ObjectMapper();
-        List<ViewStats> statsDto = mapper.convertValue(response.getBody(), new TypeReference<>() {
-        });
+        List<ViewStats> statsDto = eventStatsService.getViewStatsByEvent(event);
         EventFullDtoWithViews result;
         if (!statsDto.isEmpty()) {
             result = EventMapper.toEventFullDtoWithViews(event, statsDto.get(0).getHits(),
@@ -205,9 +187,9 @@ public class EventServiceImpl implements EventService {
             result = EventMapper.toEventFullDtoWithViews(event, 0L,
                     requestRepository.countByEventIdAndStatus(eventId, CONFIRMED));
         }
-        EndpointHitDto hit = new EndpointHitDto(app, request.getRequestURI(), request.getRemoteAddr(),
-                LocalDateTime.now());
-        statsClient.saveHit(hit);
+
+        eventStatsService.saveHit(new EndpointHitDto(app, request.getRequestURI(), request.getRemoteAddr(),
+                LocalDateTime.now()));
         log.info("get Event by id {} ", eventId);
         return result;
     }

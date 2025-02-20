@@ -1,14 +1,11 @@
 package ru.practicum.ewm.events;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.validation.ValidationException;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.categories.CategoryRepository;
@@ -19,11 +16,9 @@ import ru.practicum.ewm.events.dto.EventUpdateAdminDto;
 import ru.practicum.ewm.events.enums.State;
 import ru.practicum.ewm.events.enums.StateActionAdmin;
 import ru.practicum.ewm.exceptions.ForbiddenException;
-import ru.practicum.ewm.exceptions.NotFoundException;
 import ru.practicum.ewm.locations.LocationService;
 import ru.practicum.ewm.requests.RequestRepository;
 import ru.practicum.ewm.requests.dto.ConfirmedRequests;
-import ru.practicum.ewm.stats.client.StatsClient;
 import ru.practicum.ewm.stats.dto.ViewStats;
 import ru.practicum.ewm.users.UserRepository;
 
@@ -45,8 +40,9 @@ import static ru.practicum.ewm.requests.enums.RequestStatus.CONFIRMED;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class EventServiceAdminImpl extends EventServiceImpl implements EventServiceAdmin {
 
-    public EventServiceAdminImpl(EventRepository eventRepository, UserRepository userRepository, CategoryRepository categoryRepository, CategoryServiceImpl categoryService, LocationService locationService, RequestRepository requestRepository, StatsClient statsClient) {
-        super(eventRepository, userRepository, categoryRepository, categoryService, locationService, requestRepository, statsClient);
+
+    public EventServiceAdminImpl(EventRepository eventRepository, UserRepository userRepository, CategoryRepository categoryRepository, CategoryServiceImpl categoryService, LocationService locationService, RequestRepository requestRepository, EventStatsService eventStatsService) {
+        super(eventRepository, userRepository, categoryRepository, categoryService, locationService, requestRepository, eventStatsService);
     }
 
     @Override
@@ -84,22 +80,13 @@ public class EventServiceAdminImpl extends EventServiceImpl implements EventServ
         Specification<Event> specification = EventSpecificationBuilder.buildByAdminParams(users, states, categories,
                 rangeStart, rangeEnd);
         List<Event> events = eventRepository.findAll(specification, PageRequest.of(from / size, size));
-        List<EventFullDtoWithViews> result = new ArrayList<>();
-        List<String> uris = events.stream()
-                .map(event -> String.format("/events/%s", event.getId()))
-                .collect(Collectors.toList());
-        LocalDateTime start = events.stream()
-                .map(Event::getCreatedOn)
-                .min(LocalDateTime::compareTo)
-                .orElseThrow(() -> new NotFoundException("Start was not found"));
-        ResponseEntity<Object> response = statsClient.getStats(start, LocalDateTime.now(), uris, true);
         List<Long> ids = events.stream().map(Event::getId).collect(Collectors.toList());
         Map<Long, Long> confirmedRequests = requestRepository.findAllByEventIdInAndStatus(ids, CONFIRMED).stream()
                 .collect(Collectors.toMap(ConfirmedRequests::getEvent, ConfirmedRequests::getCount));
+
+        List<ViewStats> statsDto = eventStatsService.getViewStatsByEvents(events);
+        List<EventFullDtoWithViews> result = new ArrayList<>();
         for (Event event : events) {
-            ObjectMapper mapper = new ObjectMapper();
-            List<ViewStats> statsDto = mapper.convertValue(response.getBody(), new TypeReference<>() {
-            });
             if (!statsDto.isEmpty()) {
                 result.add(EventMapper.toEventFullDtoWithViews(event, statsDto.get(0).getHits(),
                         confirmedRequests.getOrDefault(event.getId(), 0L)));
