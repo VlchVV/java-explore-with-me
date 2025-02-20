@@ -6,7 +6,6 @@ import jakarta.validation.ValidationException;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.ResponseEntity;
@@ -45,8 +44,6 @@ import static ru.practicum.ewm.requests.enums.RequestStatus.CONFIRMED;
 @Transactional
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class EventServiceAdminImpl extends EventServiceImpl implements EventServiceAdmin {
-    @Value("${app}")
-    String app;
 
     public EventServiceAdminImpl(EventRepository eventRepository, UserRepository userRepository, CategoryRepository categoryRepository, CategoryServiceImpl categoryService, LocationService locationService, RequestRepository requestRepository, StatsClient statsClient) {
         super(eventRepository, userRepository, categoryRepository, categoryService, locationService, requestRepository, statsClient);
@@ -84,27 +81,8 @@ public class EventServiceAdminImpl extends EventServiceImpl implements EventServ
         if (rangeStart != null && rangeEnd != null && rangeStart.isAfter(rangeEnd)) {
             throw new ValidationException("Incorrectly made request.");
         }
-        Specification<Event> specification = Specification.where(null);
-        if (users != null) {
-            specification = specification.and((root, query, criteriaBuilder) ->
-                    root.get("initiator").get("id").in(users));
-        }
-        if (states != null) {
-            specification = specification.and((root, query, criteriaBuilder) ->
-                    root.get("state").as(String.class).in(states));
-        }
-        if (categories != null) {
-            specification = specification.and((root, query, criteriaBuilder) ->
-                    root.get("category").get("id").in(categories));
-        }
-        if (rangeStart != null) {
-            specification = specification.and((root, query, criteriaBuilder) ->
-                    criteriaBuilder.greaterThanOrEqualTo(root.get("eventDate"), rangeStart));
-        }
-        if (rangeEnd != null) {
-            specification = specification.and((root, query, criteriaBuilder) ->
-                    criteriaBuilder.lessThanOrEqualTo(root.get("eventDate"), rangeEnd));
-        }
+        Specification<Event> specification = EventSpecificationBuilder.buildByAdminParams(users, states, categories,
+                rangeStart, rangeEnd);
         List<Event> events = eventRepository.findAll(specification, PageRequest.of(from / size, size));
         List<EventFullDtoWithViews> result = new ArrayList<>();
         List<String> uris = events.stream()

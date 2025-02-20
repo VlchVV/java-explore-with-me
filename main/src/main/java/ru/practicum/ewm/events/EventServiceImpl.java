@@ -42,7 +42,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static ru.practicum.ewm.events.enums.State.PENDING;
@@ -176,36 +175,9 @@ public class EventServiceImpl implements EventService {
         if (rangeStart != null && rangeEnd != null && rangeStart.isAfter(rangeEnd)) {
             throw new BadRequestException("START can't be after END.");
         }
-        Specification<Event> specification = Specification.where(null);
-        if (text != null) {
-            specification = specification.and((root, query, criteriaBuilder) ->
-                    criteriaBuilder.or(
-                            criteriaBuilder.like(criteriaBuilder.lower(root.get("annotation")), "%" + text.toLowerCase() + "%"),
-                            criteriaBuilder.like(criteriaBuilder.lower(root.get("description")), "%" + text.toLowerCase() + "%")
-                    ));
-        }
-        if (categories != null) {
-            specification = specification.and((root, query, criteriaBuilder) ->
-                    root.get("category").get("id").in(categories));
-        }
-        if (paid != null) {
-            specification = specification.and((root, query, criteriaBuilder) ->
-                    criteriaBuilder.equal(root.get("paid"), paid));
-        }
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime startDateTime = Objects.requireNonNullElseGet(rangeStart, () -> now);
-        specification = specification.and((root, query, criteriaBuilder) ->
-                criteriaBuilder.greaterThan(root.get("eventDate"), startDateTime));
-        if (rangeEnd != null) {
-            specification = specification.and((root, query, criteriaBuilder) ->
-                    criteriaBuilder.lessThan(root.get("eventDate"), rangeEnd));
-        }
-        if (onlyAvailable != null && onlyAvailable) {
-            specification = specification.and((root, query, criteriaBuilder) ->
-                    criteriaBuilder.greaterThanOrEqualTo(root.get("participantLimit"), 0));
-        }
-        specification = specification.and((root, query, criteriaBuilder) ->
-                criteriaBuilder.equal(root.get("state"), PUBLISHED));
+
+        Specification<Event> specification = EventSpecificationBuilder.build(text, categories, paid, rangeStart, rangeEnd, onlyAvailable);
+
         PageRequest pageRequest;
         switch (sort) {
             case "EVENT_DATE":
@@ -227,7 +199,6 @@ public class EventServiceImpl implements EventService {
                 .min(LocalDateTime::compareTo)
                 .orElseThrow(() -> new NotFoundException("Start was not found"));
         ResponseEntity<Object> response = statsClient.getStats(start, LocalDateTime.now(), uris, true);
-        System.out.println(response.getBody());
         List<Long> ids = events.stream().map(Event::getId).collect(Collectors.toList());
         Map<Long, Long> confirmedRequests = requestRepository.findAllByEventIdInAndStatus(ids, CONFIRMED)
                 .stream()
