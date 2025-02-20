@@ -2,9 +2,14 @@ package ru.practicum.ewm.events;
 
 import lombok.experimental.UtilityClass;
 import ru.practicum.ewm.categories.CategoryMapper;
+import ru.practicum.ewm.categories.CategoryService;
 import ru.practicum.ewm.events.dto.*;
 import ru.practicum.ewm.locations.LocationMapper;
+import ru.practicum.ewm.locations.LocationService;
 import ru.practicum.ewm.users.UserMapper;
+import ru.practicum.ewm.util.Util;
+
+import java.time.LocalDateTime;
 
 @UtilityClass
 public class EventMapper {
@@ -115,5 +120,43 @@ public class EventMapper {
                 .requestModeration(event.getRequestModeration())
                 .title(event.getTitle())
                 .build();
+    }
+
+    public void updateEventFromDto(Event event, EventUpdateDto updateEvent, CategoryService categoryService, LocationService locationService) {
+        String annotation = updateEvent.getAnnotation();
+        if (annotation != null && !annotation.isBlank()) {
+            event.setAnnotation(annotation);
+        }
+        if (updateEvent.getCategory() != null) {
+            event.setCategory(CategoryMapper.toCategory(categoryService.getCategoryById(updateEvent.getCategory())));
+        }
+        String description = updateEvent.getDescription();
+        if (description != null && !description.isBlank()) {
+            event.setDescription(description);
+        }
+        LocalDateTime eventDate = updateEvent.getEventDate();
+        if (eventDate != null) {
+            Util.checkActualTime(eventDate);
+            event.setEventDate(eventDate);
+        }
+        if (updateEvent.getLocation() != null) {
+            event.setLocation(locationService.upsertLocation(LocationMapper.toLocation(updateEvent.getLocation())));
+        }
+        Boolean paid = updateEvent.getPaid();
+        if (paid != null) {
+            event.setPaid(paid);
+        }
+        Integer participantLimit = updateEvent.getParticipantLimit();
+        if (participantLimit != null) {
+            event.setParticipantLimit(participantLimit);
+        }
+        Boolean requestModeration = updateEvent.getRequestModeration();
+        if (requestModeration != null) {
+            event.setRequestModeration(requestModeration);
+        }
+        String title = updateEvent.getTitle();
+        if (title != null && !title.isBlank()) {
+            event.setTitle(title);
+        }
     }
 }

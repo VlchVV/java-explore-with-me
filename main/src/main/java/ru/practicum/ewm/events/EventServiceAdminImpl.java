@@ -67,7 +67,7 @@ public class EventServiceAdminImpl extends EventServiceImpl implements EventServ
                 event.setState(State.CANCELED);
             }
         }
-        updateFields(event, EventMapper.eventUpdateAdminToUpdateEvent(updateEvent));
+        EventMapper.updateEventFromDto(event, EventMapper.eventUpdateAdminToUpdateEvent(updateEvent), categoryService, locationService);
         log.info("Event update by Admin" + event);
         return EventMapper.toEventFullDto(eventRepository.save(event),
                 requestRepository.countByEventIdAndStatus(eventId, CONFIRMED));

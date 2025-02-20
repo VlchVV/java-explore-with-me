@@ -17,7 +17,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.categories.Category;
-import ru.practicum.ewm.categories.CategoryMapper;
 import ru.practicum.ewm.categories.CategoryRepository;
 import ru.practicum.ewm.categories.CategoryServiceImpl;
 import ru.practicum.ewm.events.dto.*;
@@ -93,7 +92,7 @@ public class EventServiceImpl implements EventService {
         if (event.getState() == PUBLISHED) {
             throw new ForbiddenException("Published events can't be updated");
         }
-        updateFields(event, EventMapper.eventUpdateUserToUpdateEvent(updateEvent));
+        EventMapper.updateEventFromDto(event, EventMapper.eventUpdateUserToUpdateEvent(updateEvent), categoryService, locationService);
         if (updateEvent.getStateAction() != null) {
             StateActionPrivate stateActionPrivate = StateActionPrivate.valueOf(updateEvent.getStateAction());
             if (stateActionPrivate.equals(SEND_TO_REVIEW)) {
@@ -107,43 +106,6 @@ public class EventServiceImpl implements EventService {
                 requestRepository.countByEventIdAndStatus(eventId, CONFIRMED));
     }
 
-    protected void updateFields(Event event, EventUpdateDto updateEvent) {
-        String annotation = updateEvent.getAnnotation();
-        if (annotation != null && !annotation.isBlank()) {
-            event.setAnnotation(annotation);
-        }
-        if (updateEvent.getCategory() != null) {
-            event.setCategory(CategoryMapper.toCategory(categoryService.getCategoryById(updateEvent.getCategory())));
-        }
-        String description = updateEvent.getDescription();
-        if (description != null && !description.isBlank()) {
-            event.setDescription(description);
-        }
-        LocalDateTime eventDate = updateEvent.getEventDate();
-        if (eventDate != null) {
-            Util.checkActualTime(eventDate);
-            event.setEventDate(eventDate);
-        }
-        if (updateEvent.getLocation() != null) {
-            event.setLocation(locationService.upsertLocation(LocationMapper.toLocation(updateEvent.getLocation())));
-        }
-        Boolean paid = updateEvent.getPaid();
-        if (paid != null) {
-            event.setPaid(paid);
-        }
-        Integer participantLimit = updateEvent.getParticipantLimit();
-        if (participantLimit != null) {
-            event.setParticipantLimit(participantLimit);
-        }
-        Boolean requestModeration = updateEvent.getRequestModeration();
-        if (requestModeration != null) {
-            event.setRequestModeration(requestModeration);
-        }
-        String title = updateEvent.getTitle();
-        if (title != null && !title.isBlank()) {
-            event.setTitle(title);
-        }
-    }
 
     @Override
     @Transactional(readOnly = true)
