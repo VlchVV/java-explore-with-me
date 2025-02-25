@@ -1,7 +1,12 @@
 package ru.practicum.ewm.events;
 
 import jakarta.servlet.http.HttpServletRequest;
-import ru.practicum.ewm.events.dto.*;
+import ru.practicum.ewm.events.dto.EventFullDto;
+import ru.practicum.ewm.events.dto.EventFullDtoWithViews;
+import ru.practicum.ewm.events.dto.EventNewDto;
+import ru.practicum.ewm.events.dto.EventShortDto;
+import ru.practicum.ewm.events.dto.EventShortDtoWithViews;
+import ru.practicum.ewm.events.dto.EventUpdateUserDto;
 
 import java.time.LocalDateTime;
 import java.util.List;
