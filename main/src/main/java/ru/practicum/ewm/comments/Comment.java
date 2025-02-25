@@ -1,14 +1,12 @@
-package ru.practicum.ewm.compilations;
+package ru.practicum.ewm.comments;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -18,37 +16,40 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.FieldDefaults;
 import ru.practicum.ewm.events.Event;
+import ru.practicum.ewm.users.User;
 
-import java.util.Set;
+import java.time.LocalDateTime;
 
 @Entity
+@Table(name = "comments")
 @Getter
 @Setter
 @ToString
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@Table(name = "compilations")
-public class Compilation {
-
+public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
     @Column(nullable = false)
-    String title;
+    String text;
 
-    Boolean pinned;
-
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "compilation_event",
-            joinColumns = @JoinColumn(name = "compilation_id"),
-            inverseJoinColumns = @JoinColumn(name = "event_id"))
+    @ManyToOne
+    @JoinColumn(name = "author_id", nullable = false)
     @ToString.Exclude
-    Set<Event> events;
+    User author;
 
-    public Compilation(String title, Boolean pinned) {
-        this.title = title;
-        this.pinned = pinned;
-    }
+    @ManyToOne
+    @JoinColumn(name = "event_id", nullable = false)
+    @ToString.Exclude
+    Event event;
+
+    @Column(nullable = false)
+    LocalDateTime created;
+
+    LocalDateTime edited;
 }
+
+

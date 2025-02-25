@@ -22,7 +22,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static ru.practicum.ewm.requests.enums.RequestStatus.*;
+import static ru.practicum.ewm.requests.enums.RequestStatus.CONFIRMED;
+import static ru.practicum.ewm.requests.enums.RequestStatus.PENDING;
+import static ru.practicum.ewm.requests.enums.RequestStatus.REJECTED;
 
 @Slf4j
 @Service
